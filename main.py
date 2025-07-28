@@ -1,18 +1,18 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, render_template
 import psycopg2
 from flask_cors import CORS
 
 app = Flask(__name__)
-CORS(app)  # Allow frontend access
+CORS(app)
 
-# PostgreSQL URL from Render
+# PostgreSQL DB from Render
 DATABASE_URL = "postgresql://nottherealepic:4u4lbsU8YdqcCnVsc0DYewLlOiaMabha@dpg-d1n08omr433s73b5jkg0-a.singapore-postgres.render.com/epicgiveaway_nw6s"
 
-# Connect to the PostgreSQL database
+# Connect to PostgreSQL
 conn = psycopg2.connect(DATABASE_URL, sslmode='require')
 cursor = conn.cursor()
 
-# Create table (if not exists)
+# Create table if it doesn't exist
 cursor.execute('''
 CREATE TABLE IF NOT EXISTS names (
     id SERIAL PRIMARY KEY,
@@ -22,6 +22,12 @@ CREATE TABLE IF NOT EXISTS names (
 ''')
 conn.commit()
 
+# Serve HTML page
+@app.route('/')
+def index():
+    return render_template("index.html")
+
+# API to save name to DB
 @app.route('/submit-name', methods=['POST'])
 def submit_name():
     data = request.json
